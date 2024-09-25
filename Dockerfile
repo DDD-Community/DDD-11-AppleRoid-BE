@@ -7,8 +7,11 @@ WORKDIR /usr/src/app
 # Install yarn
 RUN apk add --no-cache yarn
 
+
 # Copy package.json and yarn.lock
 COPY package.json yarn.lock ./
+COPY ./.env /usr/src/app/
+
 
 # Install app dependencies
 RUN yarn install --frozen-lockfile
@@ -23,4 +26,4 @@ RUN yarn build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["yarn", "start:dev"]
+CMD ["node", "dist/main.js"]
