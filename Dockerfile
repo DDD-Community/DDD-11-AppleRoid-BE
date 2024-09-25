@@ -10,8 +10,6 @@ RUN apk add --no-cache yarn
 
 # Copy package.json and yarn.lock
 COPY package.json yarn.lock ./
-COPY ./.env /usr/src/app/
-
 
 # Install app dependencies
 RUN yarn install --frozen-lockfile
