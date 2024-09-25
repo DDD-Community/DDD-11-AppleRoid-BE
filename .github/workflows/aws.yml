@@ -7,13 +7,13 @@ on:
 env:
   AWS_REGION: ap-northeast-2 # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: qro-story/mkoong # set this to your Amazon ECR repository name
-  ECS_SERVICE: MY_ECS_SERVICE # set this to your Amazon ECS service name
-  ECS_CLUSTER: MY_ECS_CLUSTER # set this to your Amazon ECS cluster name
+  ECS_SERVICE: mkoong-service-v1 # set this to your Amazon ECS service name
+  ECS_CLUSTER: mkoong-cluster # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION:
-    MY_ECS_TASK_DEFINITION # set this to the path to your Amazon ECS task definition
+    aws/task-definition.json # set this to the path to your Amazon ECS task definition
     # file, e.g. .aws/task-definition.json
   CONTAINER_NAME:
-    MY_CONTAINER_NAME # set this to the name of the container in the
+    app-server # 새 테스크 정의를 할 때 컨테이너 추가 시 작성하는 이름을 적는다.
     # containerDefinitions section of your task definition
 
 permissions:
@@ -43,17 +43,19 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} #  steps.login-ecr.outputs.registry는 ecr에 로그인을 하게 되면 Amazon ECR의 레지스트리 URI를 의미하게 된다.
+          IMAGE_TAG: ${{ github.sha }} # commit 시에 출력되는 sha값이다.
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT 
+          # $GITHUB_OUTPUT는 GitHub Actions에서 워크플로우 단계 간에 데이터를 전달하는 데 사용되는 특별한 파일이다. 이 파일에 값을 기록하면, 해당 값은 이후 단계에서 출력 변수로 사용할 수 있다.
+          # image라는 이름의 출력 변수를 생성하고, 그 값으로 새로 빌드된 Docker 이미지의 URI를 설정한다. 이후 단계에서는 이 값을 다음과 같이 참조할 수 있다.
+          # 뒤에서 사용되는 image: ${{ steps.build-image.outputs.image }} 를 파악해보자.
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
+      - name: Fill in the new image ID in the Amazon ECS task definition # task definition의 json을 수정하게된다.
+        # 주어진 task definition의 json 파일을 읽고, 새로운 이미지 ID를 포함한 새로운 task definition을 생성하는 작업을 한다.
+        # 여기서 이미지 ID라 함은 새롭게 구성되는 image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 를 말한다.
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:

@@ -1,0 +1,104 @@
+{
+  "family": "mkoong-task",
+  "containerDefinitions": [
+    {
+      "name": "app-server",
+      "image": "654654510251.dkr.ecr.ap-northeast-2.amazonaws.com/qro-story/mkoong:fa9af80f87d227b74b0f6cf6f4caf9f33fd5e1fb",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "name": "app-server-3000-tcp",
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "SERVER_PORT",
+          "value": "3000"
+        },
+        {
+          "name": "DB_MYSQL_TIMEZONE",
+          "value": "+00:00"
+        },
+        {
+          "name": "JWT_ACCESS_SECRET",
+          "value": "JWT_ACCESS_SECRET"
+        },
+        {
+          "name": "JWT_REFRESH_SECRET",
+          "value": "JWT_REFRESH_SECRET"
+        },
+        {
+          "name": "JWT_PHONE_EXPIRED",
+          "value": "30m"
+        },
+        {
+          "name": "DB_MYSQL_HOST",
+          "value": "awseb-e-sxhnzkaqmi-stack-awsebrdsdatabase-iueg2m1qravs.c1io2sga0olo.ap-northeast-2.rds.amazonaws.com"
+        },
+        {
+          "name": "JWT_REFRESH_EXPIRED",
+          "value": "3d"
+        },
+        {
+          "name": "DB_MYSQL_CHARSET",
+          "value": "utf8mb4"
+        },
+        {
+          "name": "JWT_PHONE_SECRET",
+          "value": "JWT_PHONE_SECRET"
+        },
+        {
+          "name": "DB_MYSQL_USERNAME",
+          "value": "root"
+        },
+        {
+          "name": "DB_MYSQL_PASSWORD",
+          "value": "test1234"
+        },
+        {
+          "name": "DB_MYSQL_DATABASE",
+          "value": "mkoong"
+        },
+        {
+          "name": "DB_MYSQL_PORT",
+          "value": "3306"
+        },
+        {
+          "name": "JWT_ACCESS_EXPIRED",
+          "value": "6h"
+        }
+      ],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mkoong-task",
+          "mode": "non-blocking",
+          "awslogs-create-group": "true",
+          "max-buffer-size": "25m",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "executionRoleArn": "arn:aws:iam::654654510251:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "3072",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  }
+}
