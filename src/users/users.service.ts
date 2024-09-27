@@ -6,10 +6,11 @@ import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { PostsService } from 'src/posts/posts.service';
-import { CommonError, ERROR } from '@libs/core/types';
+import { CommonError, ERROR, PaginationDto } from '@libs/core/types';
 import { PhoneTokenPayload } from 'src/passport/interfaces/passport.interface';
 import { PassportService } from 'src/passport/passport.service';
 import { MBTI, MbtiResponse } from './types/mbti.type';
+import { Posts } from '@libs/core/databases/entities/post.entity';
 
 @Injectable()
 export class UsersService extends AbstractRepository<Users> {
@@ -42,9 +43,9 @@ export class UsersService extends AbstractRepository<Users> {
     return await this.userRepository.save(user);
   }
 
-  async getUserPosts(userId: number) {
+  async getUserPosts(userId: number, dto: PaginationDto<Posts>) {
     await this.getUserById(userId);
-    const posts = await this.postsService.getMyPosts(userId);
+    const posts = await this.postsService.getMyPosts(userId, dto);
 
     return posts;
   }

@@ -1,4 +1,4 @@
-import { Controller, Body, Param } from '@nestjs/common';
+import { Controller, Body, Param, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreateAndUpdatePostDTO } from './dto/post.dto';
 import { HttpMethodEnum, Route } from '@libs/core/decorators';
@@ -10,6 +10,9 @@ import { CommentsService } from 'src/comments/comments.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CommentListRO } from 'src/comments/dto/comment.ro';
 import { PostRO } from './dto/post.ro';
+import { PaginationDto } from '@libs/core/types';
+import { Posts } from '@libs/core/databases/entities/post.entity';
+import { Comments } from '@libs/core/databases/entities/comment.entity';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -43,8 +46,12 @@ export class PostsController {
   })
   async getCommentsByPostId(
     @Param('postId') postId: number,
+    @Query() dto: PaginationDto<Comments>,
   ): Promise<CommentListRO> {
-    const comments = await this.commentsService.getCommentsByPostId(postId);
+    const comments = await this.commentsService.getCommentsByPostId(
+      postId,
+      dto,
+    );
     return { comments };
   }
 
@@ -54,9 +61,12 @@ export class PostsController {
     auth: true,
     summary: '내가 쓴 게시물 가져오기',
   })
-  async getMyPosts(@UserInfo() user: TokenPayload) {
+  async getMyPosts(
+    @UserInfo() user: TokenPayload,
+    @Query() dto: PaginationDto<Posts>,
+  ) {
     const { id: userId } = user;
-    return this.postsService.getMyPosts(userId);
+    return this.postsService.getMyPosts(userId, dto);
   }
 
   @Route({

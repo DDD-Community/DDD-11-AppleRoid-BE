@@ -1,4 +1,4 @@
-import { Controller, Body, Param } from '@nestjs/common';
+import { Controller, Body, Param, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { HttpMethodEnum, Route } from '@libs/core/decorators';
 import { ApiTags } from '@nestjs/swagger';
@@ -14,6 +14,8 @@ import {
   CreateAndUpdateNicknameDTO,
   UpdateMbtiDTO,
 } from './dto/user.dto';
+import { PaginationDto } from '@libs/core/types';
+import { Posts } from '@libs/core/databases/entities/post.entity';
 
 @ApiTags('users')
 @Controller('users')
@@ -114,10 +116,14 @@ export class UsersController {
     summary: '내가 작성한 글 가져오기',
     transform: PostRO,
   })
-  getUserPosts(@UserInfo() user: TokenPayload) {
+  getUserPosts(
+    @UserInfo() user: TokenPayload,
+    @Query() dto: PaginationDto<Posts>,
+  ) {
     const { id } = user;
-    return this.usersService.getUserPosts(+id);
+    return this.usersService.getUserPosts(+id, dto);
   }
+
   @Route({
     path: '/:id',
     method: HttpMethodEnum.GET,

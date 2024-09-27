@@ -12,7 +12,7 @@ export const UserInfo = createParamDecorator((data, ctx): TokenPayload => {
 export const PhoneAuthInfo = createParamDecorator(
   (data, ctx): PhoneTokenPayload => {
     const request = ctx.switchToHttp().getRequest();
-    console.log('request phoneAuth : ', request.phoneAuth);
+    // console.log('request phoneAuth : ', request.phoneAuth);
     return request.phoneAuth as PhoneTokenPayload;
   },
 );

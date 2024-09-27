@@ -8,7 +8,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { Votes } from '@libs/core/databases/entities/vote.entity';
-import { CommonError, ERROR } from '@libs/core/types';
+import { CommonError, ERROR, PaginationDto } from '@libs/core/types';
 
 @Injectable()
 export class PostsService extends AbstractRepository<Posts> {
@@ -24,11 +24,11 @@ export class PostsService extends AbstractRepository<Posts> {
     super(postsRepository, req);
   }
 
-  async getMyPosts(userId: number) {
-    return this.postsRepository.find({
-      where: {
-        userId,
-      },
+  async getMyPosts(userId: number, dto: PaginationDto<Posts>) {
+    const filter = { userId, ...dto };
+
+    return this.findAll({
+      filter,
     });
   }
 
@@ -56,7 +56,6 @@ export class PostsService extends AbstractRepository<Posts> {
 
     await this.postsRepository.save(post);
 
-    console.log(post);
     return post;
   }
 

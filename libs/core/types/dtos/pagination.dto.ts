@@ -1,7 +1,7 @@
 import { Property } from 'libs/core/decorators';
 import { OrderType } from '../interfaces';
 
-export class PaginationDto {
+export class PaginationDto<T> {
   @Property({
     description: '페이지 번호',
     type: 'number',
@@ -24,7 +24,7 @@ export class PaginationDto {
     default: 'id',
     required: false,
   })
-  sortBy?: string;
+  sortBy?: keyof T;
 
   @Property({
     enum: OrderType,

@@ -4,11 +4,14 @@ import { Repository } from 'typeorm';
 import { Comments } from '@libs/core/databases/entities/comment.entity';
 import { CommentLike } from '../../libs/core/databases/entities/comment.like.entity';
 import { CreateCommentDTO, CommentRO } from './dto/comment.dto';
-import { CommonError, ERROR } from '@libs/core/types';
+import { CommonError, ERROR, PaginationDto } from '@libs/core/types';
 import { UsersService } from 'src/users/users.service';
+import { AbstractRepository } from '@libs/core/databases';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
-export class CommentsService {
+export class CommentsService extends AbstractRepository<Comments> {
   constructor(
     @InjectRepository(Comments)
     private commentsRepository: Repository<Comments>,
@@ -16,7 +19,10 @@ export class CommentsService {
     private commentLikeRepository: Repository<CommentLike>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
-  ) {}
+    @Inject(REQUEST) req: Request,
+  ) {
+    super(commentsRepository, req);
+  }
 
   async getCommentById(commentId: number): Promise<Comments> {
     const comment = await this.commentsRepository.findOne({
@@ -68,7 +74,11 @@ export class CommentsService {
     return comment;
   }
 
-  async getCommentsByPostId(postId: number): Promise<CommentRO[]> {
+  async getCommentsByPostId(
+    postId: number,
+    dto: PaginationDto<Comments>,
+  ): Promise<CommentRO[]> {
+    const sortBy = dto.sortBy;
     const comments = await this.commentsRepository.find({
       where: { postId },
       relations: {
@@ -79,7 +89,11 @@ export class CommentsService {
         user: true,
         likes: true,
       },
-      order: { createdAt: 'DESC' },
+      take: dto.take,
+      skip: dto.skip,
+      order: {
+        [sortBy]: dto.sortDesc,
+      },
     });
 
     const filterComments = comments.filter(

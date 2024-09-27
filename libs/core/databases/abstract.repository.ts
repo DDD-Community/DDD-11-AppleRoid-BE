@@ -1,4 +1,3 @@
-import { ConflictException } from '@nestjs/common';
 import {
   DeepPartial,
   DeleteResult,
@@ -24,7 +23,7 @@ export declare type FindAllOptions<Entity = any> = {
   [P in keyof Entity]?: P extends 'toString'
     ? unknown
     : FindOptionsWhereProperty<NonNullable<Entity[P]>>; //Entity[P]는 Entity 객체에서 키 P에 해당하는 속성의 타입을 의미
-} & PaginationDto & {
+} & PaginationDto<Entity> & {
     select?: (keyof Entity)[];
     where?:
       | FindOptionsWhere<Entity>[]
@@ -136,7 +135,6 @@ export class AbstractRepository<TEntity extends AbstractEntity> {
   async findById(
     id: number,
     option: FindOneOptions<TEntity> = {},
-    manager?: EntityManager,
   ): Promise<TEntity | undefined> {
     if (!option?.relations) {
       Object.assign(option, {
