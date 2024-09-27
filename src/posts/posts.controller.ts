@@ -96,7 +96,6 @@ export class PostsController {
     @Body() dto: CreateAndUpdatePostDTO,
   ) {
     const { id: userId } = user;
-    console.log('user : ', user);
 
     return this.postsService.createPosts(userId, dto);
   }

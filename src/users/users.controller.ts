@@ -141,7 +141,20 @@ export class UsersController {
     auth: true,
     summary: '나의 개인정보 가져오기',
   })
-  getMyInfo(@UserInfo() user: TokenPayload) {
-    return user;
+  async getMyInfo(@UserInfo() user: TokenPayload) {
+    const { id: userId } = user;
+    return await this.usersService.getById(userId);
+  }
+
+  @Route({
+    path: '/delete',
+    method: HttpMethodEnum.DELETE,
+    auth: true,
+    summary: '회원탈퇴',
+    description: 'low delete로 계정 삭제',
+  })
+  async deleteAccount(@UserInfo() user: TokenPayload) {
+    const { id: userId, passportAuthId } = user;
+    return await this.usersService.deleteAccount(userId, passportAuthId);
   }
 }

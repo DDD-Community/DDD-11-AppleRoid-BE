@@ -10,6 +10,7 @@ import {
   CreatePassportDto,
   SignInDto,
   VerifyPhoneAuthRandomNumberDTO,
+  RefreshTokenDto,
 } from './dto/passport.dto';
 import { CommonError, ERROR } from '@libs/core/types';
 import {
@@ -280,6 +281,12 @@ export class PassportService extends AbstractRepository<PassportAuth> {
     return newAccessToken;
 
     // 전화번호로 로그인한 이후에는 유저의 정보를 함께 주어야 한다.
+  }
+
+  async softDelete(passportAuthId: number) {
+    return await this.passportAuthRepository.softDelete({
+      id: passportAuthId,
+    });
   }
 
   private generateRandomNumber(): string {

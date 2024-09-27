@@ -154,4 +154,23 @@ export class UsersService extends AbstractRepository<Users> {
       mbti,
     });
   }
+
+  async deleteAccount(userId: number, passportAuthId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, passportAuthId },
+    });
+    if (!user) {
+      throw new CommonError({
+        error: ERROR.NO_EXISTS_USER,
+        message: '해당 유저가 존재하지 않습니다.',
+      });
+    }
+
+    await this.userRepository.softDelete({ id: userId });
+    await this.passportService.softDelete(passportAuthId);
+
+    return {
+      message: '회원탈퇴가 완료되었습니다.',
+    };
+  }
 }

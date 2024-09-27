@@ -3,10 +3,8 @@ import { PassportService } from './passport.service';
 import { ApiTags } from '@nestjs/swagger';
 import { HttpMethodEnum, Route } from '@libs/core/decorators';
 import {
-  CreatePassportDto,
   PassportPhoneAuthDTO,
   RefreshTokenDto,
-  SignInDto,
   VerifyPhoneAuthRandomNumberDTO,
 } from './dto/passport.dto';
 import { RefreshTokenGuard } from './strategies/refresh.jwt.strategy';
