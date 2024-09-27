@@ -18,8 +18,6 @@ export class PhoneAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
 
-    console.log('token : ', token);
-
     if (!token) {
       throw new CommonError({
         error: ERROR.INVALID_TOKEN,

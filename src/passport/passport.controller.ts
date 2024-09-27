@@ -53,26 +53,36 @@ export class PassportController {
   }
 
   @Route({
-    path: '/sign-up',
+    path: '/sign-in/phone',
     method: HttpMethodEnum.POST,
-    transactional: true,
-    summary: '회원가입',
-    description: '이후에 핸드폰 인증하는 작업 추가될 예정',
+    summary: '전화번호로 로그인',
+    description: '전화번호로 로그인',
   })
-  async singUp(@Body() createPassportDto: CreatePassportDto) {
-    console.log(createPassportDto);
-    return await this.passportService.singUp(createPassportDto);
+  async signIn(@Body() signInDto: VerifyPhoneAuthRandomNumberDTO) {
+    return await this.passportService.signInByPhone(signInDto);
   }
 
-  @Route({
-    path: '/sign-in',
-    method: HttpMethodEnum.POST,
-    summary: '로그인',
-    description: '이후에 핸드폰 인증하는 작업 추가될 예정',
-  })
-  async signIn(@Body() signInDto: SignInDto) {
-    return await this.passportService.signIn(signInDto);
-  }
+  // @Route({
+  //   path: '/sign-up',
+  //   method: HttpMethodEnum.POST,
+  //   transactional: true,
+  //   summary: '회원가입',
+  //   description: '이후에 핸드폰 인증하는 작업 추가될 예정',
+  // })
+  // async singUp(@Body() createPassportDto: CreatePassportDto) {
+  //   console.log(createPassportDto);
+  //   return await this.passportService.singUp(createPassportDto);
+  // }
+
+  // @Route({
+  //   path: '/sign-in',
+  //   method: HttpMethodEnum.POST,
+  //   summary: '로그인',
+  //   description: '이후에 핸드폰 인증하는 작업 추가될 예정',
+  // })
+  // async signInByPhoneNumber(@Body() signInDto: SignInDto) {
+  //   return await this.passportService.signIn(signInDto);
+  // }
 
   @Route({
     path: '/refresh',

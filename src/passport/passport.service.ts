@@ -6,7 +6,11 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { CreatePassportDto, SignInDto } from './dto/passport.dto';
+import {
+  CreatePassportDto,
+  SignInDto,
+  VerifyPhoneAuthRandomNumberDTO,
+} from './dto/passport.dto';
 import { CommonError, ERROR } from '@libs/core/types';
 import {
   PhoneTokenPayload,
@@ -46,25 +50,31 @@ export class PassportService extends AbstractRepository<PassportAuth> {
         phoneNumber,
       },
     });
-    console.log('이게 맞아?  : ', passportAuth);
     return passportAuth;
   }
 
   /* 해당 유저가 정상적인 유저입지 검사 */
+  /**
+   * @deprecated
+   * **/
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.findOne({
-      where: {
-        email,
-      },
-    });
+    return test;
+    // const user = await this.findOne({
+    //   where: {
+    //     email,
+    //   },
+    // });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { ...result } = user;
-      return result;
-    }
-    return null;
+    // if (user && (await bcrypt.compare(password, user.password))) {
+    //   const { ...result } = user;
+    //   return result;
+    // }
+    // return null;
   }
 
+  /**
+   * @deprecated
+   */
   async singUp(createPassportDto: CreatePassportDto) {
     const user = await this.passportAuthRepository.findOne({
       where: {
@@ -99,6 +109,9 @@ export class PassportService extends AbstractRepository<PassportAuth> {
     return passportAuth;
   }
 
+  /**
+   * @deprecated
+   */
   async signIn(signInDto: SignInDto) {
     const user = await this.validateUser(signInDto.email, signInDto.password);
     if (!user) {
@@ -106,10 +119,10 @@ export class PassportService extends AbstractRepository<PassportAuth> {
         error: ERROR.NO_EXISTS_USER,
       });
     }
-    const tokenPayload: TokenPayload = {
+    const tokenPayload: any = {
       id: user.id,
       // username: user.username,
-      email: user.email,
+      nickname: user.nickname,
     };
 
     const accessToken = this.generateToken(
@@ -201,8 +214,6 @@ export class PassportService extends AbstractRepository<PassportAuth> {
       });
     }
 
-    console.log(passportAuth);
-
     // 인증 성공 시 verifiedAt 업데이트
     await this.passportAuthRepository.update(
       { id: passportAuth.id },
@@ -235,6 +246,40 @@ export class PassportService extends AbstractRepository<PassportAuth> {
       passportAuthId: passportAuth.id,
     });
     return accessToken;
+  }
+
+  // 전화번호로 로그인했을 때 담기는 token정보를 추가함
+  async signInByPhone(signInDto: VerifyPhoneAuthRandomNumberDTO) {
+    const accessToken = await this.verifyRandomNumber(
+      signInDto.phoneNumber,
+      signInDto.verificationCode,
+    );
+
+    const phoneTokenPayload = this.jwtService.verify(accessToken, {
+      secret: this.configService.get('JWT_PHONE_SECRET'),
+    }) as PhoneTokenPayload;
+
+    const { passportAuthId } = phoneTokenPayload;
+
+    const user = await this.usersService.findOne({
+      where: {
+        passportAuthId,
+      },
+    });
+
+    const tokenPayload: TokenPayload = {
+      id: user.id,
+      passportAuthId,
+    };
+    const newAccessToken = this.generateToken(
+      tokenPayload,
+      this.configService.get('JWT_PHONE_SECRET'),
+      this.configService.get('JWT_PHONE_EXPIRED'),
+    );
+
+    return newAccessToken;
+
+    // 전화번호로 로그인한 이후에는 유저의 정보를 함께 주어야 한다.
   }
 
   private generateRandomNumber(): string {

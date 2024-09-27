@@ -11,22 +11,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: (req: Request) => {
         const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-        return (
-          token ||
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJzdHJpbmciLCJpYXQiOjE3MjYwMjU3ODIsImV4cCI6MTcyNjA0NzM4Mn0.IIVeR0NiOKAjpDhm4NsDN_Y-bw8BrANqRejbBNaNpNQ'
-        ); // 기본값 설정
+        return token; // 기본값 설정
       },
       ignoreExpiration: false,
       secretOrKey:
-        configService.get('JWT_ACCESS_SECRET') || 'your_jwt_secret_key', // 비밀 키 설정
+        configService.get('JWT_PHONE_SECRET') || 'your_jwt_secret_key', // 비밀 키 설정
     });
   }
 
-  async validate(payload: TokenPayload) {
+  async validate(payload: TokenPayload): Promise<TokenPayload> {
     // payload는 위의 JWT의 payload를 인자로 받는다.
     console.log('jwt payload', payload);
 
-    return { id: payload.id, email: payload.email };
+    return {
+      id: payload.id,
+      passportAuthId: payload.passportAuthId,
+    };
   }
 }
 
